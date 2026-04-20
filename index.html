@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Wish Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #f7f5f0;
+            min-height: 100vh;
+        }
+
+        /* FORM PAGE - minimal */
+        .form-page {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            color: #2c2c2c;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 0.85rem;
+            border: 1px solid #e0ddd8;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #bbb;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: normal;
+            text-transform: none;
+            cursor: pointer;
+        }
+
+        .radio-group input {
+            width: auto;
+            margin: 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background: #333;
+        }
+
+        .note {
+            font-size: 0.75rem;
+            color: #999;
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        /* SHAREABLE PAGE - will be styled dynamically */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="formContainer" class="form-page">
+    <div class="form-card">
+        <h1>create a birthday wish</h1>
+        
+        <div class="form-group">
+            <label>who is it for?</label>
+            <div class="radio-group">
+                <label><input type="radio" name="gender" value="girl"> girl</label>
+                <label><input type="radio" name="gender" value="boy"> boy</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>turning age</label>
+            <input type="number" id="age" placeholder="e.g., 24" min="1" max="120">
+        </div>
+
+        <div class="form-group">
+            <label>their name</label>
+            <input type="text" id="name" placeholder="their name">
+        </div>
+
+        <div class="form-group">
+            <label>something about them (optional)</label>
+            <textarea id="about" placeholder="something nice... or leave empty for default message"></textarea>
+        </div>
+
+        <button id="generateBtn">generate →</button>
+        <div class="note">you'll get a shareable link after</div>
+    </div>
+</div>
+
+<!-- hidden template for the shareable page -->
+<div id="shareableTemplate" style="display: none;">
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+        <title>happy birthday</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+                padding: 1.5rem;
+                position: relative;
+                overflow-x: hidden;
+            }
+
+            /* girl style - cute, soft pastel */
+            body.girl-style {
+                background: linear-gradient(135deg, #ffe9f0 0%, #ffe0e8 100%);
+                color: #6b3e4a;
+            }
+
+            body.girl-style .card {
+                background: rgba(255, 250, 250, 0.92);
+                backdrop-filter: blur(2px);
+                border: 1px solid #ffd9e4;
+            }
+
+            body.girl-style .name {
+                color: #c75c7e;
+            }
+
+            /* boy style - modest, warm, neutral */
+            body.boy-style {
+                background: linear-gradient(135deg, #ece8e0 0%, #e2dbd0 100%);
+                color: #3d3a35;
+            }
+
+            body.boy-style .card {
+                background: rgba(255, 252, 245, 0.92);
+                backdrop-filter: blur(2px);
+                border: 1px solid #ddd2c0;
+            }
+
+            body.boy-style .name {
+                color: #8b7355;
+            }
+
+            .card {
+                max-width: 580px;
+                width: 100%;
+                padding: 2.8rem 2rem;
+                border-radius: 40px;
+                text-align: center;
+                box-shadow: 0 20px 35px -12px rgba(0,0,0,0.12);
+                transition: all 0.2s;
+            }
+
+            .greeting {
+                font-size: 0.9rem;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                opacity: 0.7;
+                margin-bottom: 1.5rem;
+            }
+
+            .name {
+                font-size: 3rem;
+                font-weight: 600;
+                margin-bottom: 0.75rem;
+                line-height: 1.2;
+            }
+
+            .age-text {
+                font-size: 1.2rem;
+                opacity: 0.7;
+                margin-bottom: 2rem;
+            }
+
+            .message {
+                font-size: 1.35rem;
+                line-height: 1.55;
+                margin: 2rem 0;
+                font-weight: 400;
+            }
+
+            .divider {
+                width: 50px;
+                height: 2px;
+                background: currentColor;
+                opacity: 0.2;
+                margin: 1.5rem auto;
+            }
+
+            .from {
+                font-size: 0.9rem;
+                opacity: 0.6;
+                margin-top: 1rem;
+            }
+
+            .cracker-btn {
+                margin-top: 2rem;
+                background: none;
+                border: 1px solid currentColor;
+                padding: 0.6rem 1.4rem;
+                border-radius: 60px;
+                font-size: 0.8rem;
+                cursor: pointer;
+                opacity: 0.6;
+                transition: 0.2s;
+                font-family: inherit;
+                color: inherit;
+            }
+
+            .cracker-btn:hover {
+                opacity: 1;
+                transform: scale(0.98);
+            }
+
+            @media (max-width: 550px) {
+                .card {
+                    padding: 2rem 1.5rem;
+                }
+                .name {
+                    font-size: 2.2rem;
+                }
+                .message {
+                    font-size: 1.15rem;
+                }
+            }
+        </style>
+    </head>
+    <body class="GENDER_CLASS_PLACEHOLDER">
+        <div class="card">
+            <div class="greeting">happy birthday</div>
+            <div class="name">NAME_PLACEHOLDER</div>
+            <div class="age-text">turning AGE_PLACEHOLDER</div>
+            <div class="message">MESSAGE_PLACEHOLDER</div>
+            <div class="divider"></div>
+            <div class="from">with warm wishes</div>
+            <button class="cracker-btn" id="popCracker">🎉 pop a cracker 🎉</button>
+        </div>
+
+        <script>
+            // cracker sound using Web Audio API
+            function playCrackerSound() {
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const now = audioCtx.currentTime;
+                    
+                    // create crackle + pop
+                    const duration = 0.35;
+                    const sampleRate = audioCtx.sampleRate;
+                    const bufferSize = sampleRate * duration;
+                    const buffer = audioCtx.createBuffer(1, bufferSize, sampleRate);
+                    const data = buffer.getChannelData(0);
+                    
+                    for (let i = 0; i < bufferSize; i++) {
+                        const t = i / sampleRate;
+                        // noise burst
+                        let noise = (Math.random() * 2 - 1) * Math.exp(-t * 25);
+                        // pop at beginning
+                        if (t < 0.05) noise += (Math.random() * 0.8);
+                        // crackle decay
+                        data[i] = noise * (1 - t / duration);
+                    }
+                    
+                    const source = audioCtx.createBufferSource();
+                    source.buffer = buffer;
+                    const gainNode = audioCtx.createGain();
+                    gainNode.gain.value = 0.55;
+                    source.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    source.start();
+                    
+                    // also a secondary high freq pop
+                    setTimeout(() => {
+                        const popBuffer = audioCtx.createBuffer(1, sampleRate * 0.08, sampleRate);
+                        const popData = popBuffer.getChannelData(0);
+                        for (let i = 0; i < popBuffer.length; i++) {
+                            popData[i] = (Math.random() - 0.5) * 0.7;
+                        }
+                        const popSource = audioCtx.createBufferSource();
+                        popSource.buffer = popBuffer;
+                        const popGain = audioCtx.createGain();
+                        popGain.gain.value = 0.4;
+                        popSource.connect(popGain);
+                        popGain.connect(audioCtx.destination);
+                        popSource.start();
+                    }, 20);
+                    
+                } catch(e) {
+                    console.log("audio context error");
+                }
+            }
+            
+            document.getElementById('popCracker').addEventListener('click', () => {
+                playCrackerSound();
+                // small visual feedback
+                const btn = document.getElementById('popCracker');
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => { btn.style.transform = ''; }, 150);
+            });
+            
+            // optional: auto-play on load? no, only on button click.
+        </script>
+    </body>
+    </html>
+</div>
+
+<script>
+    // default messages based on gender
+    const defaultMessages = {
+        girl: "hope your day is as wonderful as you are. may this year bring you everything good.",
+        boy: "wishing you a solid birthday. hope the year ahead treats you right."
+    };
+
+    document.getElementById('generateBtn').addEventListener('click', function() {
+        // get values
+        const genderRadios = document.querySelectorAll('input[name="gender"]');
+        let gender = null;
+        for (let radio of genderRadios) {
+            if (radio.checked) {
+                gender = radio.value;
+                break;
+            }
+        }
+        
+        const age = document.getElementById('age').value.trim();
+        const name = document.getElementById('name').value.trim();
+        let about = document.getElementById('about').value.trim();
+        
+        // validation
+        if (!gender) {
+            alert("please select girl or boy");
+            return;
+        }
+        if (!age) {
+            alert("enter their age");
+            return;
+        }
+        if (!name) {
+            alert("enter their name");
+            return;
+        }
+        
+        const ageNum = parseInt(age);
+        if (isNaN(ageNum) || ageNum < 1) {
+            alert("enter a valid age");
+            return;
+        }
+        
+        // build final message
+        let finalMessage = "";
+        if (about && about.length > 0) {
+            finalMessage = about;
+        } else {
+            finalMessage = defaultMessages[gender] || "have a great birthday.";
+        }
+        
+        // generate unique ID
+        const uniqueId = Date.now() + '-' + Math.random().toString(36).substr(2, 8);
+        
+        // create page content from template
+        let templateHtml = document.getElementById('shareableTemplate').innerHTML;
+        
+        // replace placeholders
+        templateHtml = templateHtml.replace(/NAME_PLACEHOLDER/g, escapeHtml(name));
+        templateHtml = templateHtml.replace(/AGE_PLACEHOLDER/g, ageNum);
+        templateHtml = templateHtml.replace(/MESSAGE_PLACEHOLDER/g, escapeHtml(finalMessage));
+        
+        // gender class
+        const genderClass = (gender === 'girl') ? 'girl-style' : 'boy-style';
+        templateHtml = templateHtml.replace(/GENDER_CLASS_PLACEHOLDER/g, genderClass);
+        
+        // store in localStorage with unique key
+        const storageKey = 'bday_' + uniqueId;
+        localStorage.setItem(storageKey, templateHtml);
+        
+        // generate shareable link (current page URL + hash)
+        const shareableUrl = window.location.href.split('#')[0] + '#' + uniqueId;
+        
+        // show the link in a clean way and copy option
+        showLinkDialog(shareableUrl);
+    });
+    
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+    
+    function showLinkDialog(url) {
+        // remove any existing dialog
+        const existingDialog = document.querySelector('.link-dialog');
+        if (existingDialog) existingDialog.remove();
+        
+        const dialog = document.createElement('div');
+        dialog.className = 'link-dialog';
+        dialog.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        `;
+        
+        const box = document.createElement('div');
+        box.style.cssText = `
+            background: white;
+            max-width: 450px;
+            width: 90%;
+            padding: 2rem;
+            border-radius: 32px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        `;
+        
+        box.innerHTML = `
+            <h3 style="margin-bottom: 1rem; font-weight: 500;">shareable link ready</h3>
+            <p style="margin-bottom: 1rem; color: #555; font-size: 0.9rem;">copy this link and send it to them</p>
+            <div style="background: #f5f5f0; padding: 0.8rem; border-radius: 20px; margin: 1rem 0; word-break: break-all; font-size: 0.85rem; font-family: monospace;">${url}</div>
+            <button id="copyLinkBtn" style="background: #1a1a1a; color: white; border: none; padding: 0.8rem 1.8rem; border-radius: 40px; font-size: 0.9rem; cursor: pointer; margin-top: 0.5rem;">copy link</button>
+            <button id="closeDialogBtn" style="background: none; border: none; margin-top: 1rem; color: #999; cursor: pointer; display: block; width: 100%; font-size: 0.8rem;">close</button>
+        `;
+        
+        dialog.appendChild(box);
+        document.body.appendChild(dialog);
+        
+        document.getElementById('copyLinkBtn').addEventListener('click', () => {
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = document.getElementById('copyLinkBtn');
+                const originalText = btn.innerText;
+                btn.innerText = 'copied!';
+                setTimeout(() => { btn.innerText = originalText; }, 1500);
+            });
+        });
+        
+        document.getElementById('closeDialogBtn').addEventListener('click', () => {
+            dialog.remove();
+        });
+        
+        dialog.addEventListener('click', (e) => {
+            if (e.target === dialog) dialog.remove();
+        });
+    }
+    
+    // handle URL hash to show the birthday page directly
+    function checkAndShowBirthdayPage() {
+        const hash = window.location.hash.substring(1);
+        if (hash && hash.startsWith('bday_')) {
+            const storedHtml = localStorage.getItem(hash);
+            if (storedHtml) {
+                // replace entire document with the birthday page
+                document.open();
+                document.write(storedHtml);
+                document.close();
+                // optional: remove the stored item after use? keep for sharing but fine.
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    if (!checkAndShowBirthdayPage()) {
+        // show form normally (already visible)
+        // but ensure form is visible
+        document.getElementById('formContainer').style.display = 'flex';
+    } else {
+        // hide the form page because we already replaced document
+        // no action needed
+    }
+</script>
+
+</body>
+</html>
